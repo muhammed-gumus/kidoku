@@ -38,7 +38,7 @@ const ContactPage: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        toast.success(data.message);
+        toast.success("Mesajınız başarıyla gönderildi!");
       } else {
         throw new Error("Mesaj gönderilirken bir hata oluştu.");
       }

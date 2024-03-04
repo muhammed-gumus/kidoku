@@ -8,7 +8,7 @@ from typing import List
 import uuid
 from pydantic import BaseModel
 
-DATABASE_FILE = "/Users/muhammedgumus/Desktop/freelance-project/mind-games/mind-games/public/db/database.json"
+DATABASE_FILE = "/Users/muhammedgumus/Desktop/freelance-project/kidoku/mind-games/public/db/database.json"
 
 app = FastAPI()
 

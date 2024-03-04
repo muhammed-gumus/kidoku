@@ -12,6 +12,8 @@ interface Message {
   text: string;
   email: string;
   timestamp: string;
+  firstName: string;
+  lastName: string;
   // Diğer özellikler
 }
 
@@ -386,14 +388,15 @@ const Admin: React.FC = () => {
           </div>
         )}
 
-        {currentTab === "messages" && (
+{currentTab === "messages" && (
           <div>
             {/* Mesajlar */}
             <ul className="flex flex-col gap-4">
               {messages.map((message, index) => (
                 <li key={index} className="flex flex-col">
                   <div className="flex flex-row gap-4 items-end">
-                    <p className="font-bold">{message.email}</p>
+                    <p className="font-bold">{message.firstName} {message.lastName}</p>
+                    <p>{message.email}</p>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-6 w-6"

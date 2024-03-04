@@ -3,6 +3,10 @@ import { useEffect, useState } from "react";
 import productsData from "../../../public/db/database.json";
 import Link from "next/link";
 import ReactModal from "react-modal";
+import Slider from "react-slick";
+
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 interface Product {
   productId: string;
@@ -23,6 +27,14 @@ const Details: React.FC<PageProps> = ({ params }) => {
   const [product, setProduct] = useState<Product | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState("");
+  const [sliderSettings, setSliderSettings] = useState({
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+  });
 
   useEffect(() => {
     const foundProduct = productsData.products.find(
@@ -51,10 +63,10 @@ const Details: React.FC<PageProps> = ({ params }) => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen px-24 py-16">
-      <div className="flex w-full justfiy-center items-center px-24">
+    <div className="flex flex-col items-center min-h-screen px-24 py-16">
+      <div className="flex w-full justify-center items-center px-24">
         <div className="w-1/2 p-6">
-          {product ? (
+          {product !== null && (
             <div className="flex items-start justify-center flex-col gap-2">
               <h1 className="text-6xl font-extrabold">{product.productName}</h1>
               <p>{product.productSummary}</p>
@@ -78,12 +90,10 @@ const Details: React.FC<PageProps> = ({ params }) => {
                 </button>
               </Link>
             </div>
-          ) : (
-            <p>Ürün bulunamadı.</p>
           )}
         </div>
         <div className="w-1/2 flex items-center justify-end">
-          {product && (
+          {product !== null && (
             <img
               className="w-3/4 h-auto rounded-full cursor-pointer"
               src={product.productImages[0]}
@@ -93,7 +103,7 @@ const Details: React.FC<PageProps> = ({ params }) => {
           )}
         </div>
       </div>
-      {product && (
+      {product !== null && (
         <div className="flex flex-col text-center gap-12 mt-12 px-24">
           <div className="flex flex-col gap-4">
             <p className="text-4xl font-bold">ÜRÜN HAKKINDA</p>
@@ -105,7 +115,7 @@ const Details: React.FC<PageProps> = ({ params }) => {
           </div>
         </div>
       )}
-
+      <p className="mt-12 text-4xl font-bold">ÜRÜN GÖRSELLERİ</p>
       <ReactModal
         isOpen={showModal}
         onRequestClose={closeModal}
@@ -123,6 +133,36 @@ const Details: React.FC<PageProps> = ({ params }) => {
           </button>
         </div>
       </ReactModal>
+
+      {product !== null && product.productImages.length > 1 ? (
+        <div className="mt-8 w-1/3">
+          <Slider {...sliderSettings} className="w-full">
+            {product.productImages.map((image, index) => (
+              <div key={index}>
+                <img
+                  className="w-full h-auto"
+                  src={image}
+                  alt={`Product Image ${index + 1}`}
+                  onClick={() => openModal(image)}
+                />
+              </div>
+            ))}
+          </Slider>
+        </div>
+      ) : (
+        <div className="mt-8 w-1/3">
+          {product !== null &&
+            product.productImages.map((image, index) => (
+              <img
+                key={index}
+                className="w-full h-auto"
+                src={image}
+                alt={`Product Image ${index + 1}`}
+                onClick={() => openModal(image)}
+              />
+            ))}
+        </div>
+      )}
     </div>
   );
 };
