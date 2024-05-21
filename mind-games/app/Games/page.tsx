@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 
@@ -13,6 +14,7 @@ interface Product {
 const Games = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
@@ -43,7 +45,23 @@ const Games = () => {
       }
     };
 
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/categories");
+        const data = await response.json();
+
+        if (Array.isArray(data.categories)) {
+          setCategories(data.categories);
+        } else {
+          console.error("Kategoriler bir dizi içermiyor:", data);
+        }
+      } catch (error) {
+        console.error("Kategorileri getirirken hata oluştu:", error);
+      }
+    };
+
     fetchProducts();
+    fetchCategories();
   }, []);
 
   const filterProductsByCategory = (category: string | null) => {
@@ -73,16 +91,11 @@ const Games = () => {
       <h1 className="font-extrabold text-6xl mt-8">Ürünlerimiz</h1>
       <div className="flex justify-center gap-4 mt-4">
         <button onClick={() => filterProductsByCategory(null)} className={selectedCategory === null ? 'underline' : ''}>Tümü</button>
-        <button onClick={() => filterProductsByCategory("kategori1")} className={selectedCategory === "kategori1" ? 'underline' : ''}>
-          Kategori 1
-        </button>
-        <button onClick={() => filterProductsByCategory("kategori2")} className={selectedCategory === "kategori2" ? 'underline' : ''}>
-          Kategori 2
-        </button>
-        <button onClick={() => filterProductsByCategory("kategori3")} className={selectedCategory === "kategori3" ? 'underline' : ''}>
-          Kategori 3
-        </button>
-        {/* İhtiyaca göre diğer kategori düğmeleri buraya eklenebilir */}
+        {categories.map((category) => (
+          <button key={category} onClick={() => filterProductsByCategory(category)} className={selectedCategory === category ? 'underline' : ''}>
+            {category}
+          </button>
+        ))}
       </div>
       <div className="grid grid-cols-4 gap-8 px-24 mt-8 mb-16">
         {filteredProducts.map((product, index) => (

@@ -72,7 +72,7 @@ const Details: React.FC<PageProps> = ({ params }) => {
               <p>{product.productSummary}</p>
               <Link href={"/"}>
                 <button className="mt-4 flex items-center gap-12 px-8 py-2 text-xl rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition duration-300">
-                  Buy
+                  Satın Al
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-6 w-6"

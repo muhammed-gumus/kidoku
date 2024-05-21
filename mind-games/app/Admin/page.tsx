@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import Login from "@/components/AdminLogin";
 
@@ -24,6 +25,16 @@ const Admin: React.FC = () => {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [currentTab, setCurrentTab] = useState<string>("addProduct"); // Varsayılan olarak "Ürün Ekle" tab'ini seçili yap
   const [messages, setMessages] = useState<Message[]>([]);
+  const [productName, setProductName] = useState("");
+  const [productImages, setProductImages] = useState<FileList | null>(null);
+  const [productDescription, setProductDescription] = useState("");
+  const [usageInstructions, setUsageInstructions] = useState("");
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const [productSummary, setProductSummary] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [categories, setCategories] = useState<string[]>([]); // Kategorileri tutmak için state eklendi
+  const [newCategoryInput, setNewCategoryInput] = useState(""); // Yeni kategori input değeri için state eklendi
+  const [lastInteractionTime, setLastInteractionTime] = useState<number>(Date.now());
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -66,13 +77,22 @@ const Admin: React.FC = () => {
     fetchProducts();
   }, [currentTab]); // currentTab değiştiğinde yeniden çağır
 
-  const [productName, setProductName] = useState("");
-  const [productImages, setProductImages] = useState<FileList | null>(null);
-  const [productDescription, setProductDescription] = useState("");
-  const [usageInstructions, setUsageInstructions] = useState("");
-  const imageInputRef = useRef<HTMLInputElement>(null);
-  const [productSummary, setProductSummary] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/categories");
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data.categories);
+        } else {
+          console.error("Kategoriler alınırken bir hata oluştu.");
+        }
+      } catch (error) {
+        console.error("Kategoriler alınırken bir hata oluştu:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -204,6 +224,75 @@ const Admin: React.FC = () => {
     }
   };
 
+  const handleAddCategory = async () => {
+    if (newCategoryInput.trim() !== "") {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/categories", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ category: newCategoryInput.trim() }),
+        });
+
+        if (response.ok) {
+          setCategories((prevCategories) => [
+            ...prevCategories,
+            newCategoryInput.trim(),
+          ]);
+          setNewCategoryInput(""); // input alanını temizle
+          console.log("Kategori başarıyla eklendi.");
+        } else {
+          console.error("Kategori eklenirken bir hata oluştu.");
+        }
+      } catch (error) {
+        console.error("Kategori eklenirken bir hata oluştu:", error);
+      }
+    }
+  };
+
+  const handleDeleteCategory = async (category: string) => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/categories/${category}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log("Kategori başarıyla silindi:", responseData);
+        // Kategori silindikten sonra frontend'de de kategoriyi güncelle
+        setCategories(categories.filter((cat) => cat !== category));
+      } else {
+        const errorData = await response.json();
+        console.error("Kategori silinirken hata oluştu:", errorData.detail);
+      }
+    } catch (error) {
+      console.error("Kategori silinirken hata oluştu:", error);
+    }
+  };
+
+  const checkSessionTimeout = () => {
+    const currentTime = Date.now();
+    const lastInteraction = lastInteractionTime;
+    const timeoutDuration = 5 * 60 * 1000; // 5 dakika
+
+    if (currentTime - lastInteraction > timeoutDuration) {
+      handleLogout();
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(checkSessionTimeout, 60000); // Her dakika kontrol
+    return () => clearInterval(interval);
+  }, [lastInteractionTime]);
+
+  const handleTabChange = (tab: string) => {
+    setCurrentTab(tab);
+  };
+
   if (!isLoggedIn) {
     return <Login onLogin={handleLogin} />;
   }
@@ -219,7 +308,7 @@ const Admin: React.FC = () => {
             className={`mr-4 cursor-pointer ${
               currentTab === "addProduct" ? "font-bold" : ""
             }`}
-            onClick={() => setCurrentTab("addProduct")}
+            onClick={() => handleTabChange("addProduct")}
           >
             Ürün Ekle
           </li>
@@ -227,7 +316,7 @@ const Admin: React.FC = () => {
             className={`mr-4 cursor-pointer ${
               currentTab === "removeProduct" ? "font-bold" : ""
             }`}
-            onClick={() => setCurrentTab("removeProduct")}
+            onClick={() => handleTabChange("removeProduct")}
           >
             Ürün Çıkar
           </li>
@@ -235,9 +324,17 @@ const Admin: React.FC = () => {
             className={`mr-4 cursor-pointer ${
               currentTab === "messages" ? "font-bold" : ""
             }`}
-            onClick={() => setCurrentTab("messages")}
+            onClick={() => handleTabChange("messages")}
           >
             Mesajlar
+          </li>
+          <li
+            className={`mr-4 cursor-pointer ${
+              currentTab === "addCategory" ? "font-bold" : ""
+            }`}
+            onClick={() => handleTabChange("addCategory")}
+          >
+            Kategori Ekle
           </li>
         </ul>
         {currentTab === "addProduct" && (
@@ -263,9 +360,12 @@ const Admin: React.FC = () => {
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
                 <option value="">Kategori Seçiniz</option>
-                <option value="kategori1">Kategori 1</option>
-                <option value="kategori2">Kategori 2</option>
-                <option value="kategori3">Kategori 3</option>
+                {categories &&
+                  categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
               </select>
             </div>
 
@@ -292,18 +392,6 @@ const Admin: React.FC = () => {
             </div>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-600">
-                Ürün Özet Bilgi:
-              </label>
-              <input
-                type="text"
-                className="mt-1 p-2 w-full border rounded-md"
-                value={productSummary}
-                onChange={(e) => setProductSummary(e.target.value)}
-                maxLength={100} // Maksimum 200 karakter sınırı
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-600">
                 Ürün Açıklaması:
               </label>
               <textarea
@@ -322,107 +410,120 @@ const Admin: React.FC = () => {
                 onChange={(e) => setUsageInstructions(e.target.value)}
               />
             </div>
-            <div className="flex flex-row gap-4">
-              <button
-                type="submit"
-                className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300"
-              >
-                Ürün Ekle
-              </button>
-              <button
-                type="button"
-                onClick={handleClearForm}
-                className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring focus:border-gray-200 "
-              >
-                Formu Temizle
-              </button>
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 text-white py-2 px-4 rounded-md  hover:bg-red-600 focus:outline-none focus:ring focus:border-red-300"
-              >
-                Çıkış Yap
-              </button>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-600">
+                Ürün Özeti:
+              </label>
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border rounded-md"
+                value={productSummary}
+                onChange={(e) => setProductSummary(e.target.value)}
+              />
             </div>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            >
+              Ürünü Ekle
+            </button>
+            <button
+              type="button"
+              onClick={handleClearForm}
+              className="ml-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+            >
+              Formu Temizle
+            </button>
           </form>
         )}
         {currentTab === "removeProduct" && (
-          <div className="flex flex-col items-start mt-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
-              {products.map((product) => (
-                <div
-                  key={product.productId}
-                  className="bg-white p-4 rounded-md shadow-md flex flex-col items-center justify-center"
-                  style={{ minHeight: "80px" }} // Çerçeve boyutunu sabitleme
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedProducts.includes(product.productId)}
-                    onChange={() => toggleProductSelection(product.productId)}
-                    className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-400"
-                  />
-                  <div className="overflow-hidden max-w-full text-center">
-                    <span className="line-clamp-2">{product.productName}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-4 mt-8">
-              <button
-                onClick={handleDeleteSelectedProducts}
-                disabled={selectedProducts.length === 0}
-                className={`bg-blue-500 text-white py-2 px-4 rounded-md ${
-                  selectedProducts.length === 0
-                    ? "cursor-not-allowed opacity-50"
-                    : "hover:bg-red-600 focus:outline-none focus:ring focus:border-red-300"
-                }`}
-              >
-                Seçili Ürünleri Sil
-              </button>
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 focus:outline-none focus:ring focus:border-red-300"
-              >
-                Çıkış Yap
-              </button>
-            </div>
+          <div>
+            <h2 className="text-lg font-medium mb-2">
+              Silmek istediğiniz ürünleri seçin:
+            </h2>
+            {products.map((product) => (
+              <div key={product.productId} className="mb-2">
+                <input
+                  type="checkbox"
+                  checked={selectedProducts.includes(product.productId)}
+                  onChange={() =>
+                    toggleProductSelection(product.productId)
+                  }
+                  className="mr-2"
+                />
+                <span>{product.productName}</span>
+              </div>
+            ))}
+            <button
+              onClick={handleDeleteSelectedProducts}
+              disabled={selectedProducts.length === 0}
+              className={`px-4 py-2 mt-4 bg-red-500 text-white rounded-md ${
+                selectedProducts.length === 0 && "opacity-50 cursor-not-allowed"
+              }`}
+            >
+              Seçilenleri Sil
+            </button>
           </div>
         )}
-
-{currentTab === "messages" && (
+        {currentTab === "messages" && (
           <div>
-            {/* Mesajlar */}
-            <ul className="flex flex-col gap-4">
-              {messages.map((message, index) => (
-                <li key={index} className="flex flex-col">
-                  <div className="flex flex-row gap-4 items-end">
-                    <p className="font-bold">{message.firstName} {message.lastName}</p>
-                    <p>{message.email}</p>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 8l4 4m0 0l-4 4m4-4H3"
-                      />
-                    </svg>
-                    <p>{message.timestamp}</p>
-                  </div>
-                  <p>{message.text}</p>
+            <h2 className="text-lg font-medium mb-2">Gelen Mesajlar:</h2>
+            {messages.map((message) => (
+              <div
+                key={message.timestamp}
+                className="border-b py-2 flex flex-col"
+              >
+                <p className="mb-1">
+                  <span className="font-bold">İsim:</span>{" "}
+                  {message.firstName} {message.lastName}
+                </p>
+                <p className="mb-1">
+                  <span className="font-bold">Email:</span> {message.email}
+                </p>
+                <p className="mb-1">
+                  <span className="font-bold">Mesaj:</span> {message.text}
+                </p>
+                <p className="text-sm text-gray-500">
+                  <span className="font-bold">Tarih:</span>{" "}
+                  {new Date(message.timestamp).toLocaleString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+        {currentTab === "addCategory" && (
+          <div>
+            <h2 className="text-lg font-medium mb-2">Kategoriler:</h2>
+            <ul className="mb-4">
+              {categories.map((category) => (
+                <li key={category} className="flex items-center">
+                  <span className="mr-2">{category}</span>
+                  <button
+                    onClick={() => handleDeleteCategory(category)}
+                    className="text-red-500"
+                  >
+                    Sil
+                  </button>
                 </li>
               ))}
             </ul>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 text-white py-2 px-4 rounded-md mt-4 hover:bg-red-600 focus:outline-none focus:ring focus:border-red-300"
-            >
-              Çıkış Yap
-            </button>
+            <div>
+              <label className="block text-sm font-medium text-gray-600">
+                Yeni Kategori Ekle:
+              </label>
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border rounded-md"
+                value={newCategoryInput}
+                onChange={(e) => setNewCategoryInput(e.target.value)}
+              />
+              <button
+                onClick={handleAddCategory}
+                className="px-4 py-2 mt-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+              >
+                Ekle
+              </button>
+            </div>
           </div>
         )}
       </div>

@@ -7,13 +7,19 @@ import traceback
 from typing import List
 import uuid
 from pydantic import BaseModel
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import jwt
+from fastapi import Depends
+from datetime import datetime, timedelta
+
+
 
 DATABASE_FILE = "/Users/muhammedgumus/Desktop/freelance-project/kidoku/mind-games/public/db/database.json"
 
 app = FastAPI()
 
 # CORS middleware
-origins = ["*"]
+origins = ["*"]  # Gerekirse buraya "http://localhost:3000" gibi belirli origin'leri ekleyin
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -21,6 +27,61 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Bu key'i güvenli bir yerde saklayın ve değiştirin
+SECRET_KEY = "secret"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/control")
+
+
+def authenticate_user(username: str, password: str):
+    valid_username = "admin"
+    valid_password = "adminparola"
+    return username == valid_username and password == valid_password
+
+
+def create_access_token(data: dict, expires_delta: timedelta):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + expires_delta
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+@app.post("/control")
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    username = form_data.username
+    password = form_data.password
+    if not authenticate_user(username, password):
+        raise HTTPException(
+            status_code=401, detail="Invalid username or password")
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": username}, expires_delta=access_token_expires
+    )
+    print(f"Request handled for username: {username}")
+    print(f"Access token generated: {access_token}")
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@app.get("/users/me")
+async def read_users_me(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise HTTPException(
+                status_code=401, detail="Invalid authentication credentials")
+        return {"username": username}
+    except JWTError:
+        raise HTTPException(
+            status_code=401, detail="Invalid authentication credentials")
+
+
+class CategoryInput(BaseModel):
+    category: str
+
 
 UPLOADS_DIR = "../public/images/uploads"
 
@@ -193,3 +254,79 @@ if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     uvicorn.run("main:app", host="127.0.0.1",
                 port=8000, reload=True, loop=loop)
+
+
+@app.post("/categories")
+async def add_category(category_input: CategoryInput):
+    try:
+        category = category_input.category.strip()
+        if not category:
+            return JSONResponse(
+                content={"success": False,
+                         "error": "Category cannot be empty"},
+                status_code=400,
+            )
+
+        with open(DATABASE_FILE, "r", encoding="utf-8") as db_file:
+            data = json.load(db_file)
+            categories = data.get("categories", [])
+            categories.append(category)
+
+        with open(DATABASE_FILE, "w", encoding="utf-8") as db_file:
+            data["categories"] = categories
+            json.dump(data, db_file, ensure_ascii=False)
+
+        return JSONResponse(
+            content={"success": True, "message": "Category added successfully"},
+            status_code=201,
+        )
+    except Exception as e:
+        return JSONResponse(
+            content={"success": False, "error": str(e)},
+            status_code=500,
+        )
+
+
+@app.get("/categories")
+async def get_categories():
+    try:
+        with open(DATABASE_FILE, "r", encoding="utf-8") as db_file:
+            data = json.load(db_file)
+            categories = data.get("categories", [])
+            return JSONResponse(
+                content={"success": True, "categories": categories},
+                status_code=200,
+            )
+    except Exception as e:
+        return JSONResponse(
+            content={"success": False, "error": str(e)},
+            status_code=500,
+        )
+
+
+@app.delete("/categories/{category}")
+async def delete_category(category: str):
+    try:
+        with open(DATABASE_FILE, "r", encoding="utf-8") as db_file:
+            data = json.load(db_file)
+            categories = data.get("categories", [])
+            if category in categories:
+                categories.remove(category)
+                with open(DATABASE_FILE, "w", encoding="utf-8") as db_file:
+                    data["categories"] = categories
+                    json.dump(data, db_file, ensure_ascii=False)
+                return JSONResponse(
+                    content={"success": True,
+                             "message": "Category deleted successfully"},
+                    status_code=200,
+                )
+            else:
+                return JSONResponse(
+                    content={"success": False, "error": "Category not found"},
+                    status_code=404,
+                )
+    except Exception as e:
+        return JSONResponse(
+            content={"success": False, "error": str(e)},
+            status_code=500,
+        )

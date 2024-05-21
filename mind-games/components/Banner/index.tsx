@@ -3,8 +3,11 @@ import Link from "next/link";
 
 const titleText1 = "Kidoku"; // Kullanmak istediğiniz özel metin
 const titleText2 = "Akademi";
-const descText =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam";
+const descText1 =
+  "Akıl oyunları oynamak, beyinleri eğitmek için 'öğretme' gerektirmeyen bir yöntemdir.";
+const descText2 =
+  "Eğitilmiş beyine ise öğretmek çok kolaydır. Bu nedenle çocuklar akıl oyunları ile çok erken yaşlarda tanışmalılar.";
+
 const customImageUrl = "images/banner.jpg"; // Kullanmak istediğiniz özel görsel URL
 
 const Banner: React.FC = () => {
@@ -14,14 +17,21 @@ const Banner: React.FC = () => {
       <div className="flex flex-col items-center text-center md:items-start md:text-left md:w-1/2">
         <div className="mb-6">
           <p className="md:text-6xl font-bold sm:text-4xl">{titleText1}</p>
-          <p className="md:text-8xl font-extrabold tracking-wider sm:text-6xl">{titleText2}</p>
+          <p className="md:text-8xl font-extrabold tracking-wider sm:text-6xl">
+            {titleText2}
+          </p>
         </div>
 
-        <p className="md:text-xl sm:px-2 md:px-0 opacity-70 mb-6 md:pr-16">{descText}</p>
+        <p className="md:text-xl sm:px-2 md:px-0 opacity-70 mb-2 md:pr-16">
+          {descText1}
+        </p>
+        <p className="md:text-xl sm:px-2 md:px-0 opacity-70 mb-6 md:pr-16">
+          {descText2}
+        </p>
 
         <Link href={"/Games"}>
           <button className="flex flex-row items-center gap-4 text-black px-10 py-3 rounded-lg text-xl bg-white transition duration-300 hover:text-indigo-600 hover:bg-white mb-6 md:mb-0">
-            Product
+            Ürünlerimiz
             <svg
               width="32"
               height="32"

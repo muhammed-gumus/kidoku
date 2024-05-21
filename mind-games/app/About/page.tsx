@@ -46,7 +46,7 @@ const teamMembers = [
 
 export default function Home() {
   var desc =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+    "Biz kalıplaştırılmış algoritmik eğitime karşı bir duruşu olan, akıl oyunlarına gönül vermiş, bu yüzden Aklını Oynatmış bir aileyiz. Öğrenme sürecinin yüzeysellikten kurtarılıp, derinlemesine olması için analitik düşünmenin öğrenilmesi gerektiği yadsınamaz. Bu düşünme sisteminin de matematik ve kodlama içinde oyunlaştırılarak verilmesi gerektiğine inanıyoruz. Bu inançla çıktığımız bu yolda Oyun Oynuyoruz. Oyun Öğretiyoruz. Oyun Tasarlıyoruz. Oyun Üretiyoruz.";
   return (
     <div className="flex min-h-screen flex-col items-center ">
       <div className="flex flex-col md:flex-row sm:gap-4 justify-around items-center px-4 md:px-24 mt-12">
@@ -63,7 +63,7 @@ export default function Home() {
           </p>
           <Link href={"#our-team"}>
             <button className="mt-4 w-full md:w-1/3 flex flex-row items-center sm:justify-center gap-4 text-black px-10 py-3 rounded-lg text-xl bg-white transition duration-300 hover:text-indigo-600 hover:bg-white mb-6 md:mb-0">
-              Our Team
+              Takımımız
               <svg
                 width="32"
                 height="32"
@@ -86,7 +86,7 @@ export default function Home() {
       </div>
       <div className="w-full mt-24 sm:mt-12 flex flex-col items-center sm:justify-center sm:text-center">
         <p className="text-7xl sm:text-5xl font-bold flex justify-center text-white w-full py-2">
-          Who We Are?
+          Biz Kimiz?
         </p>
         <p className="mt-8 sm:text-sm sm:px-4 md:px-16 w-full text-center tracking-wider opacity-90 leading-6">
           {desc}
@@ -163,7 +163,7 @@ export default function Home() {
       </div>
       <div id="our-team" className="w-full mt-12 flex flex-col items-center">
         <p className="text-7xl sm:text-5xl font-bold flex justify-center text-white w-full py-2">
-          Our Team
+          Takımımız
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 w-full items-start justify-center gap-4 px-4 md:px-8 mt-12 mb-32">
           {/* Team cards */}

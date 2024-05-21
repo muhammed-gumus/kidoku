@@ -83,12 +83,12 @@ const Navbar: React.FC = () => {
           >
             x
           </button>
-          <ul className="flex gap-4">
-            <MenuItem href="/" text="Home" />
-            <MenuItem href="/About" text="About" />
-            <MenuItem href="/Games" text="Products" />
-            <MenuItem href="/Trainings" text="Trainings" />
-            <MenuItem href="/Contact" text="Contact" />
+          <ul className="flex text-sm gap-2 items-center justift-center">
+            <MenuItem href="/" text="Ana Sayfa" />
+            <MenuItem href="/About" text="Hakkımızda" />
+            <MenuItem href="/Games" text="Ürünlerimiz" />
+            <MenuItem href="/Trainings" text="Eğitimlerimiz" />
+            <MenuItem href="/Contact" text="İletişim" />
           </ul>
         </div>
       )}
@@ -96,11 +96,11 @@ const Navbar: React.FC = () => {
       {/* Menü Öğeleri (Büyük Ekranlar İçin) */}
       <div className="hidden md:flex space-x-4 list-none items-center">
         <>
-          <MenuItem href="/" text="Home" />
-          <MenuItem href="/About" text="About" />
-          <MenuItem href="/Games" text="Products" />
-          <MenuItem href="/Trainings" text="Trainings" />
-          <MenuItem href="/Contact" text="Contact" />
+          <MenuItem href="/" text="Ana Sayfa" />
+          <MenuItem href="/About" text="Hakkımızda" />
+          <MenuItem href="/Games" text="Ürünlerimiz" />
+          <MenuItem href="/Trainings" text="Eğitimlerimiz" />
+          <MenuItem href="/Contact" text="İletişim" />
         </>
       </div>
     </nav>

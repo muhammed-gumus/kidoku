@@ -1,20 +1,31 @@
 "use client";
-// Login.tsx
 import React, { useState } from "react";
 
 const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
   const [kullaniciAdi, setKullaniciAdi] = useState("");
   const [sifre, setSifre] = useState("");
 
-  const handleLogin = () => {
-    // Kullanıcı adı ve şifrenin doğruluğunu kontrol et (kendi kimlik doğrulama mantığınıza göre değiştirin)
-    const isValidUser = kullaniciAdi === "admin" && sifre === "adminparola";
+  const handleLogin = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("username", kullaniciAdi);
+      formData.append("password", sifre);
 
-    if (isValidUser) {
-      localStorage.setItem("isLoggedIn", "true");
-      onLogin();
-    } else {
-      alert("Geçersiz kullanıcı adı veya şifre");
+      const response = await fetch("http://127.0.0.1:8000/control", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.access_token) {
+        localStorage.setItem("isLoggedIn", "true");
+        onLogin();
+      } else {
+        throw new Error("Geçersiz kullanıcı adı veya şifre");
+      }
+    } catch (error) {
+      alert(error);
     }
   };
 
