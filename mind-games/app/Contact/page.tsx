@@ -123,7 +123,7 @@ const ContactPage: React.FC = () => {
             </button>
           </form>
         </div>
-        <Map />
+        {typeof window !== 'undefined' && <Map />}
       </div>
       <ToastContainer position="bottom-right" />
     </div>
