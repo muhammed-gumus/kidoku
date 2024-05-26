@@ -34,7 +34,9 @@ const Admin: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [categories, setCategories] = useState<string[]>([]); // Kategorileri tutmak için state eklendi
   const [newCategoryInput, setNewCategoryInput] = useState(""); // Yeni kategori input değeri için state eklendi
-  const [lastInteractionTime, setLastInteractionTime] = useState<number>(Date.now());
+  const [lastInteractionTime, setLastInteractionTime] = useState<number>(
+    Date.now()
+  );
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -137,9 +139,10 @@ const Admin: React.FC = () => {
           ...prevProducts,
           { productId: responseData.productId, productName /* other fields */ },
         ]);
-
+        if (typeof window !== "undefined") {
+          window.location.reload();
+        }
         // Sayfayı yenile
-        window.location.reload();
       } else {
         // Hata durumunda
         const errorData = await response.json();
@@ -446,9 +449,7 @@ const Admin: React.FC = () => {
                 <input
                   type="checkbox"
                   checked={selectedProducts.includes(product.productId)}
-                  onChange={() =>
-                    toggleProductSelection(product.productId)
-                  }
+                  onChange={() => toggleProductSelection(product.productId)}
                   className="mr-2"
                 />
                 <span>{product.productName}</span>
@@ -474,8 +475,8 @@ const Admin: React.FC = () => {
                 className="border-b py-2 flex flex-col"
               >
                 <p className="mb-1">
-                  <span className="font-bold">İsim:</span>{" "}
-                  {message.firstName} {message.lastName}
+                  <span className="font-bold">İsim:</span> {message.firstName}{" "}
+                  {message.lastName}
                 </p>
                 <p className="mb-1">
                   <span className="font-bold">Email:</span> {message.email}

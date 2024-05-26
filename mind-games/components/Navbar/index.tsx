@@ -33,13 +33,16 @@ const Navbar: React.FC = () => {
         setIsMenuOpen(false);
       }
     };
-
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", handleResize);
+    }
     // Pencere boyutu değiştiğinde handleResize işlevini çağır
-    window.addEventListener("resize", handleResize);
 
     // Temizlik
     return () => {
-      window.removeEventListener("resize", handleResize);
+      if (typeof window !== "undefined") {
+        window.removeEventListener("resize", handleResize);
+      }
     };
   }, [isMenuOpen]);
 
