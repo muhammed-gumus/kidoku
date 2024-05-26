@@ -1,8 +1,14 @@
 "use client";
 import React, { useState } from "react";
-import Map from "../../components/Map";
+// import Map from "../../components/Map";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import dynamic from 'next/dynamic';
+
+// Map bileşenini dinamik olarak import et
+const Map = dynamic(() => import("../../components/Map"), {
+  ssr: false, // Sunucu tarafında render edilmesini engeller
+});
 
 const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -123,7 +129,7 @@ const ContactPage: React.FC = () => {
             </button>
           </form>
         </div>
-        <Map />
+        {typeof window !== 'undefined' && <Map />}
       </div>
       <ToastContainer position="bottom-right" />
     </div>
