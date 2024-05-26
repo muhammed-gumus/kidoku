@@ -28,9 +28,11 @@ const Navbar: React.FC = () => {
   // Sayfa boyutunu dinleme
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 768 && isMenuOpen) {
-        // Eğer büyük ekrana geçiş yaptıysak ve menü açıksa, menüyü kapat
-        setIsMenuOpen(false);
+      if (typeof window !== "undefined") {
+        if (window.innerWidth >= 768 && isMenuOpen) {
+          // Eğer büyük ekrana geçiş yaptıysak ve menü açıksa, menüyü kapat
+          setIsMenuOpen(false);
+        }
       }
     };
     if (typeof window !== "undefined") {
