@@ -13,13 +13,13 @@ from fastapi import Depends
 from datetime import datetime, timedelta
 
 
-
 DATABASE_FILE = "/Users/muhammedgumus/Desktop/freelance-project/kidoku/mind-games/public/db/database.json"
 
 app = FastAPI()
 
 # CORS middleware
-origins = ["*"]  # Gerekirse buraya "http://localhost:3000" gibi belirli origin'leri ekleyin
+# Gerekirse buraya "http://localhost:3000" gibi belirli origin'leri ekleyin
+origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
