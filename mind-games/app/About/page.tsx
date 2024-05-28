@@ -48,7 +48,7 @@ export default function Home() {
   var desc =
     "Biz kalıplaştırılmış algoritmik eğitime karşı bir duruşu olan, akıl oyunlarına gönül vermiş, bu yüzden Aklını Oynatmış bir aileyiz. Öğrenme sürecinin yüzeysellikten kurtarılıp, derinlemesine olması için analitik düşünmenin öğrenilmesi gerektiği yadsınamaz. Bu düşünme sisteminin de matematik ve kodlama içinde oyunlaştırılarak verilmesi gerektiğine inanıyoruz. Bu inançla çıktığımız bu yolda Oyun Oynuyoruz. Oyun Öğretiyoruz. Oyun Tasarlıyoruz. Oyun Üretiyoruz.";
   return (
-    <div className="flex min-h-screen flex-col items-center ">
+    <div className="flex min-h-screen flex-col items-center">
       <div className="flex flex-col md:flex-row sm:gap-4 justify-around items-center px-4 md:px-24 mt-12">
         <img
           className="w-full md:w-1/3 rounded-full object-cover"
