@@ -6,12 +6,13 @@ import Image from "next/image";
 interface MenuItemProps {
   href: string;
   text: string;
+  onClick?: () => void;
 }
 
-const MenuItem: React.FC<MenuItemProps> = ({ href, text }) => {
+const MenuItem: React.FC<MenuItemProps> = ({ href, text, onClick }) => {
   return (
     <li>
-      <Link href={href}>
+      <Link href={href} onClick={onClick}>
         <span className="hover:text-yellow-400 cursor-pointer">{text}</span>
       </Link>
     </li>
@@ -48,8 +49,12 @@ const Navbar: React.FC = () => {
     };
   }, [isMenuOpen]);
 
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
-    <nav className="px-24 flex justify-between items-center w-full text-black bg-white rounded-sm">
+    <nav className="sticky top-0 px-24 flex justify-between items-center w-full text-black bg-white rounded-sm">
       {/* Logo */}
       <div className="text-2xl font-bold hidden md:block">
         <Link href="/">
@@ -63,7 +68,7 @@ const Navbar: React.FC = () => {
       </div>
 
       {/* Burger Menü (Tablet ve Mobil Ekranlar İçin) */}
-      <div className="block md:hidden flex justify-center items-center w-full">
+      <div className="sticky top-0 block md:hidden flex justify-center items-center w-full">
         <div className="text-xl font-bold">
           <Link href="/">
             <Image
@@ -74,9 +79,11 @@ const Navbar: React.FC = () => {
             />
           </Link>
         </div>
-        <button onClick={toggleMenu} className="ml-auto text-4xl">
-          ☰
-        </button>
+        {!isMenuOpen && (
+          <button onClick={toggleMenu} className="ml-auto text-4xl">
+            ☰
+          </button>
+        )}
       </div>
 
       {/* Menü Öğeleri (Tablet ve Mobil Ekranlar İçin) */}
@@ -88,12 +95,12 @@ const Navbar: React.FC = () => {
           >
             x
           </button>
-          <ul className="flex text-sm gap-2 items-center justift-center">
-            <MenuItem href="/" text="Ana Sayfa" />
-            <MenuItem href="/About" text="Hakkımızda" />
-            <MenuItem href="/Games" text="Ürünlerimiz" />
-            <MenuItem href="/Trainings" text="Eğitimlerimiz" />
-            <MenuItem href="/Contact" text="İletişim" />
+          <ul className="flex text-sm gap-2 items-center justify-center">
+            <MenuItem href="/" text="Ana Sayfa" onClick={closeMenu} />
+            <MenuItem href="/About" text="Hakkımızda" onClick={closeMenu} />
+            <MenuItem href="/Games" text="Ürünlerimiz" onClick={closeMenu} />
+            <MenuItem href="/Trainings" text="Eğitimlerimiz" onClick={closeMenu} />
+            <MenuItem href="/Contact" text="İletişim" onClick={closeMenu} />
           </ul>
         </div>
       )}
